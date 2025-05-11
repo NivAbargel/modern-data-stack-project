@@ -1,0 +1,43 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.db
+
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# Pytest cache
+.cache/
+
+# DBT target folder
+dbt/target/
+dbt/dbt_modules/
+
+# Airflow logs and configs
+airflow/logs/
+airflow/airflow.db
+airflow/airflow.cfg
+airflow/unittests.cfg
+
+# Docker
+*.log
+docker/*.env
+docker-compose.override.yml
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# Streamlit
+.dvc/
+streamlit/*.pyc
+
+# Power BI temp
+*.pbix
