@@ -1,0 +1,54 @@
+version: '3.8'
+
+services: # each service = container (container is kinda like a VM)
+  postgres: # opens a PostgreSQL container
+    image: postgres:15 # image - as if it's a vanilla container with PostgreSQL installed.
+    container_name: postgres # container_name = container host name
+    environment: # environmental variables, inside the container
+      POSTGRES_USER: airflow # this will create an admin user with name and pass - airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: modern_data_stack # this will create an empty db called modern_data_stack
+    volumes: # volume:container - when we don't need to visually see the data - external (global) storage, used to save progress between containers (in case one crashes), kinda like a checkpoint to rollback to.
+      - postgres_data:/var/lib/postgresql/data # connecting the volume to the path that will contain the db in the container
+    ports: # connect between my pc port to the container's port
+      - "5432:5432" # syntax - "host port:container port"
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    ports:
+      - "3000:3000"
+    depends_on: # this container will only deploy if the PostgreSQL container will be up and running
+      - postgres # no point in running without a db
+
+  airflow:
+    image: apache/airflow:2.9.1
+    container_name: airflow
+    environment: # check airflow documentation to understand what these are
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/modern_data_stack # tells airflow to connect to our postgresql db based on url
+      AIRFLOW__CORE__FERNET_KEY: ''
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    volumes: # host:container
+      - ./airflow/dags:/opt/airflow/dags # ./airflow/dags = path of folder in host pc, not container
+      - ./airflow/logs:/opt/airflow/logs # the right side of the string (2nd path) is the container side
+      - ./airflow/plugins:/opt/airflow/plugins # we'll do this when we want to access the data in the container path on our host pc (like logs)
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  ingestion:
+    build: ./ingestion # build = create custom image, don't use pre-made image
+    container_name: ingestion
+    volumes:
+      - ./ingestion:/app # /app is a path in my container
+    depends_on:
+      - postgres
+    # command: ["python", "api_ingest.py"] # command that will run api_ingest using python in the container. this is Linux syntax.
+    # command - entry point
+    # docker-compose entry point will always overwrite dockerfile entry point
+    # best practice - keep image entry point, not docker-compose entry point
+volumes:
+  postgres_data: # created volume - postgres_data

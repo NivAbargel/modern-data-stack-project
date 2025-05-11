@@ -1,0 +1,20 @@
+# FROM - start of dockerfile, selects basic image to build the custom image on top of.
+# dockerfile is a file that includes a set of commands to create a custom image
+# in this case, we want to create an image of python that will use our ingest script (base - python image; custom - our py script)
+FROM python:3.10-slim
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy your local requirements.txt to the container
+# . is linux syntax for current directory (/app in this case)
+# this copies requirements.txt file from host pc to /app folder in the container
+COPY requirements.txt .
+
+# Install the Python dependencies in the container
+RUN pip install --no-cache-dir -r requirements.txt
+
+
+# Set the command to run your app
+# CMD - entry point
+CMD ["python", "api_ingest.py"]
