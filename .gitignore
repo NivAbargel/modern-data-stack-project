@@ -12,6 +12,8 @@ ENV/
 
 # Secrets and config files
 .env
+.env.example
+secrets.txt
 docker/*.env
 
 # Pytest cache
