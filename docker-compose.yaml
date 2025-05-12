@@ -27,7 +27,7 @@ services: # each service = container (container is kinda like a VM)
     environment: # check airflow documentation to understand what these are
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/modern_data_stack # tells airflow to connect to our postgresql db based on url
-      AIRFLOW__CORE__FERNET_KEY: ''
+      AIRFLOW__CORE__FERNET_KEY: '***REMOVED***'
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     volumes: # host:container
