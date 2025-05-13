@@ -39,6 +39,7 @@ services: # each service = container (container is kinda like a VM)
       - "8080:8080"
     depends_on:
       - postgres
+    command: standalone
 
   ingestion:
     build: ./ingestion # build = create custom image, don't use pre-made image
