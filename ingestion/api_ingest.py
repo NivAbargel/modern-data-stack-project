@@ -195,6 +195,8 @@ def create_tables(cur):
     Args:
         cur (psycopg2.extensions.cursor): An open database cursor
     """
+    cur.execute("DROP TABLE IF EXISTS github_repos CASCADE;")  # ⚠️ Caution - on’t do this in production unless you're okay losing all existing data in the tables.
+    cur.execute("DROP TABLE IF EXISTS github_users CASCADE;")  # This is suitable during early development when schema might change frequently.
     cur.execute(CREATE_USERS_TABLE)
     cur.execute(CREATE_REPOS_TABLE)
 
