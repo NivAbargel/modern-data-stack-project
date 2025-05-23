@@ -12,6 +12,11 @@ services: # each service = container (container is kinda like a VM)
       - postgres_data:/var/lib/postgresql/data # connecting the volume to the path that will contain the db in the container
     ports: # connect between my pc port to the container's port
       - "5432:5432" # syntax - "host port:container port"
+    healthcheck: # Wait for DB to be reachable
+      test: [ "CMD-SHELL", "pg_isready -U airflow" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   metabase:
     image: metabase/metabase:latest
@@ -35,11 +40,22 @@ services: # each service = container (container is kinda like a VM)
       - ./airflow/dags:/opt/airflow/dags # ./airflow/dags = path of folder in host pc, not container
       - ./airflow/logs:/opt/airflow/logs # the right side of the string (2nd path) is the container side
       - ./airflow/plugins:/opt/airflow/plugins # we'll do this when we want to access the data in the container path on our host pc (like logs)
+      - ./ingestion:/app  # mounts your ingestion script into Airflow container
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
-    command: standalone
+      postgres:
+        condition: service_healthy
+    command: bash -c "rm -f /opt/airflow/airflow-webserver.pid && airflow standalone" # remove the old PID blocking the webserver
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail http://localhost:8080/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
+
+
 
   ingestion:
     build: ./ingestion # build = create custom image, don't use pre-made image
